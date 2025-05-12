@@ -1,0 +1,567 @@
+import subprocess
+import json
+import pytest
+
+
+def run_cli_command(command, args):
+    try:
+        result = subprocess.run(['python', '-m', 'se2305', command] + args, capture_output=True, text=True, check=True)
+        return result.stdout, result.stderr
+    except subprocess.CalledProcessError as e:
+        return e.stdout, e.stderr
+    except Exception as e:
+        return "", str(e)
+
+#Functional Testing
+
+def test_newtitles_valid_input():
+    args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+    stdout, _ = run_cli_command('newtitles', args)
+    expected_text = "status\": \"titlebasics data added"
+    assert expected_text in stdout
+
+def test_newtitles_valid_input1():
+    args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title_null.tsv']
+    stdout, _ = run_cli_command('newtitles', args)
+    expected_text = "Response Status Code: 204\nResponse Content: \n"
+    assert expected_text in stdout
+
+
+def test_newtitles_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\titles.tsv']
+        stdout, _, = run_cli_command('newtitles', args)
+        expected_text = "status\": \"titlebasics data added"
+        assert expected_text in stdout
+
+
+def test_newtitles_invalid_input1():
+    args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\name.tsv']
+    stdout, _ = run_cli_command('newtitles', args)
+    expected_text = 'Adding new titlebasics with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\name.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+    assert expected_text in stdout
+
+    
+def test_newtitles_missing_argument():
+    args = ['--filename']
+    stdout, stderr = run_cli_command('newtitles', args)
+    expected_error_message = 'usage: se2305.py newtitles [-h] --filename FILENAME [--format {json,csv}]\nse2305.py newtitles: error: argument --filename: expected one argument'
+    assert expected_error_message in stderr
+
+def test_newtitles_missing_parametre():
+    args = []
+    stdout, stderr = run_cli_command('newtitles', args)
+    expected_error_message = 'usage: se2305.py newtitles [-h] --filename FILENAME [--format {json,csv}]\nse2305.py newtitles: error: the following arguments are required: --filename'
+    assert expected_error_message in stderr
+
+
+def test_newtitles_invalid_input2():
+    args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+    stdout, stderr = run_cli_command('newtitles', args)
+    expected_error_message = 'Adding new titlebasics with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 500\nResponse Content: {\n    "error": "Internal server error"\n}\n\n'
+    assert expected_error_message in stdout
+
+
+def test_searchtitle_valid_input():
+        args = ['--titlepart','Kleb']
+        stdout, _, = run_cli_command('searchtitle', args)
+        
+        expected_text = 'Searching for titles containing: Kleb'
+        assert expected_text in stdout
+        expected_text = 'titleID'
+        assert expected_text in stdout
+        expected_text = 'type'
+        assert expected_text in stdout
+        expected_text = 'originalTitle'
+        assert expected_text in stdout
+        expected_text = 'startYear'
+        assert expected_text in stdout
+        expected_text = 'endYear'
+        assert expected_text in stdout
+        expected_text = 'genres'
+        assert expected_text in stdout
+        expected_text = 'titleAkas'
+        assert expected_text in stdout
+        expected_text = 'akaTitle'
+        assert expected_text in stdout
+        expected_text = 'regionAbbrev'
+        assert expected_text in stdout
+        expected_text = 'principals'
+        assert expected_text in stdout
+        expected_text = 'nameID'
+        assert expected_text in stdout
+        expected_text = 'name'
+        assert expected_text in stdout
+        expected_text = 'category'
+        assert expected_text in stdout
+        expected_text = 'rating'
+        assert expected_text in stdout
+        expected_text = 'avRating'
+        assert expected_text in stdout
+        expected_text = 'nVotes'
+        assert expected_text in stdout
+
+def test_searchtitle_invalid_input():
+        args = ['--titlepart','Νύχτα']
+        stdout, _, = run_cli_command('searchtitle', args)
+        expected_text = 'Response Content: []'
+        assert expected_text in stdout
+
+def test_title_valid_input():
+        args = ['--titleID','tt0000929']
+        stdout, _ = run_cli_command('title', args)
+        expected_text = 'Fetching data for Title ID: tt0000929'
+        assert expected_text in stdout
+        expected_text = 'titleID'
+        assert expected_text in stdout
+        expected_text = 'type'
+        assert expected_text in stdout
+        expected_text = 'originalTitle'
+        assert expected_text in stdout
+        expected_text = 'startYear'
+        assert expected_text in stdout
+        expected_text = 'endYear'
+        assert expected_text in stdout
+        expected_text = 'genres'
+        assert expected_text in stdout
+        expected_text = 'titleAkas'
+        assert expected_text in stdout
+        expected_text = 'akaTitle'
+        assert expected_text in stdout
+        expected_text = 'regionAbbrev'
+        assert expected_text in stdout
+        expected_text = 'principals'
+        assert expected_text in stdout
+        expected_text = 'nameID'
+        assert expected_text in stdout
+        expected_text = 'name'
+        assert expected_text in stdout
+        expected_text = 'category'
+        assert expected_text in stdout
+        expected_text = 'rating'
+        assert expected_text in stdout
+        expected_text = 'avRating'
+        assert expected_text in stdout
+        expected_text = 'nVotes'
+        assert expected_text in stdout
+
+def test_title_invalid_input():
+        args = ['--titleID', 'tt4444444']
+        stdout, _ = run_cli_command('title', args)
+        expected_text = "message\": \"Title not found"
+        assert expected_text in stdout
+
+def test_searchname_valid_input():
+        args = ['--name','Ernst']
+        stdout, _ = run_cli_command('searchname', args)
+        expected_text = 'Searching for professionals with Primary_Name containing: Ernst'
+        assert expected_text in stdout
+        expected_text = 'nameID'
+        assert expected_text in stdout
+        expected_text = 'name'
+        assert expected_text in stdout
+        expected_text = 'namePoster'
+        assert expected_text in stdout
+        expected_text = 'birthYr'
+        assert expected_text in stdout
+        expected_text = 'deathYr'
+        assert expected_text in stdout
+        expected_text = 'profession'
+        assert expected_text in stdout
+        expected_text = 'nameTitles'
+        assert expected_text in stdout
+        expected_text = 'titleID'
+        assert expected_text in stdout
+        expected_text = 'category'
+        assert expected_text in stdout
+
+def test_searchname_invalid_input():
+        args = ['--name','Areti']
+        stdout, _, = run_cli_command('searchname', args)
+        expected_text = 'Response Content: []'
+        assert expected_text in stdout
+
+def test_name_valid_input():
+        args = ['--nameid','nm0066941']
+        stdout, _, = run_cli_command('name', args)
+        expected_text = 'Fetching data for Professional ID: nm0066941'
+        assert expected_text in stdout
+        expected_text = 'nameID'
+        assert expected_text in stdout
+        expected_text = 'name'
+        assert expected_text in stdout
+        expected_text = 'namePoster'
+        assert expected_text in stdout
+        expected_text = 'birthYr'
+        assert expected_text in stdout
+        expected_text = 'deathYr'
+        assert expected_text in stdout
+        expected_text = 'profession'
+        assert expected_text in stdout
+        expected_text = 'nameTitles'
+        assert expected_text in stdout
+        expected_text = 'titleID'
+        assert expected_text in stdout
+        expected_text = 'category'
+        assert expected_text in stdout
+
+
+def test_name_invalid_input():
+        args = ['--nameid' ,'nm4444444']
+        stdout, _, = run_cli_command('name', args)
+        expected_text = "message\": \"Contributor not found"
+        assert expected_text in stdout
+
+def test_bygenre_valid_input():
+        args = ['--genre', 'Comedy', '--min', '5', '--from', '1998', '--to', '2030']
+        stdout, _, = run_cli_command('bygenre', args)
+        expected_text = 'Filtering titles by genre: Comedy, min rating: 5.0, start year: 1998, end year: 2030'
+        assert expected_text in stdout
+        expected_text = 'titleID'
+        assert expected_text in stdout
+        expected_text = 'type'
+        assert expected_text in stdout
+        expected_text = 'originalTitle'
+        assert expected_text in stdout
+        expected_text = 'titlePoster'
+        assert expected_text in stdout
+        expected_text = 'startYear'
+        assert expected_text in stdout
+        expected_text = 'endYear'
+        assert expected_text in stdout
+        expected_text = 'genres'
+        assert expected_text in stdout
+        expected_text = 'titleAkas'
+        assert expected_text in stdout
+        expected_text = 'akaTitle'
+        assert expected_text in stdout
+        expected_text = 'regionAbbrev'
+        assert expected_text in stdout
+        expected_text = 'principals'
+        assert expected_text in stdout
+        expected_text = 'nameID'
+        assert expected_text in stdout
+        expected_text = 'name'
+        assert expected_text in stdout
+        expected_text = 'category'
+        assert expected_text in stdout
+        expected_text = 'rating'
+        assert expected_text in stdout
+        expected_text = 'avRating'
+        assert expected_text in stdout
+        expected_text = 'nVotes'
+        assert expected_text in stdout
+
+
+def test_bygenre_invalid_input():
+        args = ['--genre', 'Comedy', '--min', '5', '--from', '2040', '--to', '2050']
+        stdout, _, = run_cli_command('bygenre', args)
+        expected_text = 'Response Content: []'
+        assert expected_text in stdout
+
+def test_newnames_valid_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\name.tsv']
+        stdout, _, = run_cli_command('newnames', args)
+        expected_text = "status\": \"namebasics data added"
+        assert expected_text in stdout
+
+def test_newnames_valid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\name_null.tsv']
+        stdout, _, = run_cli_command('newnames', args)
+        expected_text = "Response Status Code: 204\nResponse Content: \n"
+        assert expected_text in stdout
+
+
+def test_newnames_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\names.tsv']
+        stdout, _, = run_cli_command('newnames', args)
+        expected_text = "status\": \"namebasics data added"
+        assert expected_text in stdout
+
+def test_newnames_invalid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+        stdout, _, = run_cli_command('newnames', args)
+        expected_text = 'Adding new names with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+        assert expected_text in stdout
+
+def test_newnames_invalid_input2():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\name.tsv']
+        stdout, _, = run_cli_command('newnames', args)       
+
+        expected_text = (
+            f'Adding new names with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\name.tsv\n'
+            f'Response Status Code: 500\n'
+            f'Response Content: {{\n'
+            f'    "error": "Internal server error"\n'
+            f'}}\n\n'
+        )        
+        assert expected_text in stdout
+
+def test_newcrew_valid_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\crew.tsv']
+        stdout, _ = run_cli_command('newcrew', args)
+        expected_text = "status\": \"crew data added"
+        assert expected_text in stdout
+
+def test_newcrew_valid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\crew_null.tsv']
+        stdout, _ = run_cli_command('newcrew', args)
+        expected_text = "Response Status Code: 204\nResponse Content: \n"
+        assert expected_text in stdout
+
+def test_newcrew_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\crews.tsv']
+        stdout, _ = run_cli_command('newcrew', args)
+        expected_text = "status\": \"crew data added"
+        assert expected_text in stdout
+
+def test_newcrew_invalid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+        stdout, _ = run_cli_command('newcrew', args)
+        expected_text = 'Adding new crew with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+        assert expected_text in stdout
+
+def test_newcrew_invalid_input2():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\crew.tsv']
+        stdout, _ = run_cli_command('newcrew', args)
+        expected_text = (
+            f'Adding new crew with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\crew.tsv\n'
+            f'Response Status Code: 500\n'
+            f'Response Content: {{\n'
+            f'    "error": "Internal server error"\n'
+            f'}}\n\n'
+        )        
+                
+        assert expected_text in stdout
+
+def test_newakas_valid_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\aka.tsv']
+        stdout, _ = run_cli_command('newakas', args)
+        expected_text = "status\": \"akas data added"
+        assert expected_text in stdout
+
+def test_newakas_valid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\aka_null.tsv']
+        stdout, _ = run_cli_command('newakas', args)
+        expected_text = "Response Status Code: 204\nResponse Content: \n"
+        assert expected_text in stdout
+
+
+def test_newakas_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\akas.tsv']
+        stdout, _ = run_cli_command('newakas', args)
+        expected_text = "status\": \"akas data added"
+        assert expected_text in stdout
+    
+def test_newakas_invalid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+        stdout, _ = run_cli_command('newakas', args)
+        expected_text = 'Adding new akas with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+        assert expected_text in stdout
+
+def test_newakas_invalid_input2():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\aka.tsv']
+        stdout, _ = run_cli_command('newakas', args)
+        expected_text = (
+            f'Adding new akas with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\aka.tsv\n'
+            f'Response Status Code: 500\n'
+            f'Response Content: {{\n'
+            f'    "error": "Internal server error"\n'
+            f'}}\n\n'
+        )        
+        assert expected_text in stdout
+        
+def test_newepisode_valid_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\episode.tsv']
+        stdout, _ = run_cli_command('newepisode', args)
+        expected_text = "status\": \"episode data added"
+        assert expected_text in stdout
+
+def test_newepisode_valid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\episode_null.tsv']
+        stdout, _ = run_cli_command('newepisode', args)
+        expected_text = "Response Status Code: 204\nResponse Content: \n"
+        assert expected_text in stdout
+
+def test_newepisode_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\episodes.tsv']
+        stdout, _ = run_cli_command('newepisode', args)
+        expected_text = "status\": \"episode data added"
+        assert expected_text in stdout
+
+def test_newepisode_invalid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+        stdout, _ = run_cli_command('newepisode', args)
+        expected_text = 'Adding new episodes with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+        assert expected_text in stdout
+
+def test_newepisode_invalid_input2():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\episode.tsv']
+        stdout, _ = run_cli_command('newepisode', args)
+        expected_text = (
+            f'Adding new episodes with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\episode.tsv\n'
+            f'Response Status Code: 500\n'
+            f'Response Content: {{\n'
+            f'    "error": "Internal server error"\n'
+            f'}}\n\n'
+        )        
+        assert expected_text in stdout
+
+def test_newratings_valid_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\rating.tsv']
+        stdout, _ = run_cli_command('newratings', args)
+        expected_text = "status\": \"ratings data added"
+        assert expected_text in stdout
+
+def test_newratings_valid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\rating_null.tsv']
+        stdout, _ = run_cli_command('newratings', args)
+        expected_text = "Response Status Code: 204\nResponse Content: \n"
+        assert expected_text in stdout
+
+def test_newratings_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\ratings.tsv']
+        stdout, _ = run_cli_command('newratings', args)
+        expected_text = "status\": \"ratings data added"
+        assert expected_text in stdout
+
+def test_newratings_invalid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+        stdout, _ = run_cli_command('newratings', args)
+        expected_text = 'Adding new ratings with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+        assert expected_text in stdout
+
+def test_newratings_invalid_input2():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\rating.tsv']
+        stdout, _ = run_cli_command('newratings', args)
+        expected_text = (
+            f'Adding new ratings with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\rating.tsv\n'
+            f'Response Status Code: 500\n'
+            f'Response Content: {{\n'
+            f'    "error": "Internal server error"\n'
+            f'}}\n\n'
+        )        
+        assert expected_text in stdout
+
+def test_newprincipals_valid_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\principal.tsv']
+        stdout, _ = run_cli_command('newprincipals', args)
+        expected_text = "status\": \"principals data added"
+        assert expected_text in stdout
+
+def test_newprincipals_valid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\principal_null.tsv']
+        stdout, _ = run_cli_command('newprincipals', args)
+        expected_text = "Response Status Code: 204\nResponse Content: \n"
+        assert expected_text in stdout
+
+def test_newprincipals_edge_input():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\principals.tsv']
+        stdout, _ = run_cli_command('newprincipals', args)
+        expected_text = "status\": \"principals data added"
+        assert expected_text in stdout
+
+def test_newprincipals_invalid_input1():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv']
+        stdout, _ = run_cli_command('newprincipals', args)
+        expected_text = 'Adding new principals with filename:C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\title.tsv\nResponse Status Code: 400\nResponse Content: {\n    "error": "Unknown column in database"\n}\n\n'
+        assert expected_text in stdout
+
+def test_newprincipals_invalid_input2():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\principal.tsv']
+        stdout, _ = run_cli_command('newprincipals', args)
+        expected_text = (
+            f'Adding new principals with filename: C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\principal.tsv\n'
+            f'Response Status Code: 500\n'
+            f'Response Content: {{\n'
+            f'    "error": "Internal server error"\n'
+            f'}}\n\n'
+        )        
+        assert expected_text in stdout
+
+        
+def run_help_command():
+    result = subprocess.run(['python', 'se2305.py', '--help'], capture_output=True, text=True)
+    return result.stdout, result.stderr
+
+def test_help():
+    stdout, stderr = run_help_command()
+    expected_phrases = [
+        'usage: se2305.py [-h]',
+        'CLI for Your Application',
+        'Available scopes',
+        'Add new names',
+        'Add new titles',
+        'Output format (json/csv)',
+
+    ]
+    assert all(phrase in stdout for phrase in expected_phrases)
+
+def test_healthcheck():
+        stdout, _ = run_cli_command('healthcheck', [])
+        expected_text = "status\": \"OK"
+        assert expected_text in stdout
+        expected_text = "database\": \"Connected"
+        assert expected_text in stdout
+
+def test_top10genre():
+        stdout, _, = run_cli_command('top10genre', [])
+        expected_text = 'Fetching the top 10 titles in ratings for each genre'
+        assert expected_text in stdout
+        expected_text = 'titleID'
+        assert expected_text in stdout
+        expected_text = 'type'
+        assert expected_text in stdout
+        expected_text = 'originalTitle'
+        assert expected_text in stdout
+        expected_text = 'titlePoster'
+        assert expected_text in stdout
+        expected_text = 'startYear'
+        assert expected_text in stdout
+        expected_text = 'endYear'
+        assert expected_text in stdout
+        expected_text = 'genres'
+        assert expected_text in stdout
+        expected_text = 'titleAkas'
+        assert expected_text in stdout
+        expected_text = 'akaTitle'
+        assert expected_text in stdout
+        expected_text = 'regionAbbrev'
+        assert expected_text in stdout
+        expected_text = 'principals'
+        assert expected_text in stdout
+        expected_text = 'nameID'
+        assert expected_text in stdout
+        expected_text = 'name'
+        assert expected_text in stdout
+        expected_text = 'category'
+        assert expected_text in stdout
+        expected_text = 'rating'
+        assert expected_text in stdout
+        expected_text = 'avRating'
+        assert expected_text in stdout
+        expected_text = 'nVotes'
+        assert expected_text in stdout
+
+
+def test_rating_topgenres():
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\newtitle.tsv']
+        stdout, _ = run_cli_command('newtitles', args)
+        expected_text = "status\": \"titlebasics data added"
+        assert expected_text in stdout
+        args = ['--filename', 'C:\\temp\\new_folder\\softeng23-05\\cli-client\\functionaltesting\\test_rating_top10genres.tsv']
+        stdout, _ = run_cli_command('newratings', args)
+        expected_text = "status\": \"ratings data added"
+        assert expected_text in stdout
+        stdout, _, = run_cli_command('top10genre', [])
+        expected_text = 'Fetching the top 10 titles in ratings for each genre'
+        assert expected_text in stdout
+        expected_text = "titleID\": \"tt0000001"
+        assert expected_text in stdout
+
+def test_resetall():
+    stdout, _ = run_cli_command('resetall', [])
+    expected_text = "status\": \"Database repopulated successfully"
+    assert expected_text in stdout
+
+if __name__ == '__main__':
+    pytest.main()
