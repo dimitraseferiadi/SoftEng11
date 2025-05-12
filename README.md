@@ -1,74 +1,61 @@
-# SoftEng
+# NTUAFlix
 
-NTUA/ECE Software Engineering, 2023-2024
+NTUAFlix is a web-based movie discovery and metadata platform. The system enables users to search and explore movie information via a responsive web interface or through a RESTful API. Core functionalities include full-text movie search by title or cast, genre-based top-10 listings, and detailed metadata views for both movies and contributors. The backend is implemented in Python using Flask, with data persistence handled via a MySQL relational database. The front-end is served through Flask as well, supporting interaction through dynamically generated HTML pages. A command-line interface (CLI) written in Python is provided for programmatic interaction with the REST API.
 
-## Introduction
+## Installation
 
-Welcome to the NTUAFlix application repository! This document provides a guide on setting up the repository locally on your computer and running the application. NTUAFlix is a movie streaming platform developed by the NTUA/ECE Software Engineering team for the academic year 2023-2024.
+1. Clone the repository:
+    
+    ```bash
+    git clone https://github.com/dimitraseferiadi/softeng
+    cd softeng
+    
+    ```
+    
+2. Set up the backend and database:
+    
+    ```bash
+    python setup.py
+    
+    ```
+    
+3. Run the front-end server:
+    
+    ```bash
+    cd front-end
+    python server.py
+    
+    ```
+    
 
-## Prerequisites
+The application will be available at [http://127.0.0.1:5000](http://127.0.0.1:5000/).
 
-Before setting up the repository, ensure the following prerequisites are met:
-- MySQL is installed and configured on your system.
-- Python is installed on your system.
+## CLI Access
 
-## Setup Instructions
+A command-line interface is provided via `se2305.py`. For global use on Windows, create a `.bat` file:
 
-Follow these steps to set up the git repository:
+```
+@echo off
+python C:\temp\cli-client\se2305.py %*
 
-1. **Clone the Repository**: 
-   - Clone the git repository to your local machine using the command:
-     ```
-     git clone https://github.com/ntua/softeng23-05
-     ```
-     
-2. **Database Setup and Dependencies Installation**:
-   - Run the `setup.py` file at the top-level directory of the repository to install dependencies, set up the database and initialize the application:
-     ```
-     python setup.py
-     ```
+```
 
-3. **Run the Server**:
-   - Navigate to the `front-end` folder and run the `server.py` file to start the server:
-     ```
-     cd front-end
-     python server.py
-     ```
+Place it in `C:/Windows/System32` and run commands like:
 
-4. **Running CLI Commands**:
+```bash
+se2305 movies --title "Interstellar" --format json
 
-   To run CLI commands in the correct format, follow these steps:
-   
-   1. Create a new file in Notepad.
-   2. Paste the following contents into the file:
-   
-       ```batch
-       @echo off
-       python C:\temp\cli-client\se2305.py %*
-       ```
-   
-   3. Save the file with the extension `.bat`.
-   4. Move the saved file to the directory `C:/Windows/System32`.
-   
-   After completing these steps, you can execute CLI commands using the specified format: 
+```
 
-    $ se23XX scope --param1 value1 [--param2 value2 ...] --format fff
+## API Functionality
 
-   Replace `se2305.py` with the appropriate filename if necessary, and ensure that the Python script is located in the specified directory.
+The REST API supports:
 
+- `/top10?genre=action` – Get top 10 movies by genre
+- `/search?title=matrix` – Search by movie title
+- `/search?person=nolan` – Search by contributor name
+- `/movie/<id>` – Get full details of a movie
+- `/person/<id>` – Get full details of a contributor
 
-
-4. **Access the Application**:
-   - Once the server is running, you can access the NTUAFlix application at [http://127.0.0.1:5000](http://127.0.0.1:5000) in your web browser.
-
-## Additional Information
-
-- The NTUAFlix application is built using Python and MySQL.
-- The `setup.py` file installs the dependencies contained in the `dependencies.py` file, initializes the database and starts the API server.
-- The `server.py` file in the `front-end` folder launches the front-end server.
-- Ensure to have a stable internet connection during setup to download necessary dependencies.
-- When running the application locally, its source code was located in the path C:\temp\new_folder\softeng23-05; however, this may vary depending on the folder used for local storage of the application.
-  
-For any issues or inquiries, please contact the project maintainers. 
-
-Happy streaming! 🎬🍿
+## Documentation
+For complete technical specs and diagrams, refer to the included [SRS document](https://github.com/dimitraseferiadi/SoftEng11/blob/main/documentation/SRS_team5.pdf).
